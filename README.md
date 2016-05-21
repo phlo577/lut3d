@@ -1,2 +1,1 @@
-# lut3d
-3D LUT Generator
+# 3D LUT Generator
