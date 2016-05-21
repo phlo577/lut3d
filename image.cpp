@@ -36,6 +36,39 @@ Image::Image(uint16_t w, uint16_t h, uint8_t* imgBuffer)
     }
 }
 
+Image::Image(uint16_t w, uint16_t h, uint8_t* imgBuffer, bool useless)
+{
+    QColor color;
+    uint16_t x, y;
+    uint8_t red, green, blue;
+    uint32_t i;
+    width = w;
+    height = h;
+    image8bit  = (Image8bit)QImage(width, height,  QImage::Format_RGB888);
+
+    // PLANARY!
+    // Convert 12bit image to 8bit image
+    for(int y = 0; y < height;y++)
+    {
+        for(int x = 0; x < width; x++)
+        {
+            i = y*width + x;
+            red = imgBuffer[i];
+            color.setRed(red);
+
+            i += height*width;
+            green = imgBuffer[i];
+            color.setGreen(green);
+
+            i += height*width;
+            blue = imgBuffer[i];
+            color.setBlue(blue);
+
+            image8bit.setPixelColor(x, y, color);
+        }
+    }
+}
+
 Image::Image(uint16_t w, uint16_t h, Image8bit image)
 {
     width = w;

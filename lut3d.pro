@@ -15,10 +15,12 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
         lut3d.cpp \
-    image.cpp
+    image.cpp \
+    color.cpp
 
 HEADERS  += mainwindow.h \
     lut3d.h \
-    image.h
+    image.h \
+    color.h
 
 FORMS    += mainwindow.ui
