@@ -9,15 +9,27 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "image.h"
+#include "color.h"
 
+
+#include "QDebug"
+
+#define INTERVAL 273
 #define MAX_INDEX 16
+
+#define IMG_WIDTH  720
+#define IMG_HEIGHT 540
+
+
+static lab_t lab;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    lut3d = new Lut3D(273, 16);
+    indentityLut3d = new Lut3D(INTERVAL, MAX_INDEX);
+    lut3d = new Lut3D(INTERVAL, MAX_INDEX);
 
     exportImageAct = ui->exportImageAct;
     exportLutAct   = ui->exportLutAct;
@@ -29,7 +41,7 @@ MainWindow::MainWindow(QWidget *parent) :
     zoomInAct      = ui->zoomInAct;
     zoomOutAct     = ui->zoomOutAct;
 
-    setWindowTitle(tr("3D LUT Tool"));
+    setWindowTitle(tr("3D LUT Generator"));
 
     originalImageLabel = new QLabel;
     processedImageLabel = new QLabel;
@@ -54,6 +66,10 @@ MainWindow::MainWindow(QWidget *parent) :
     processedScrollArea->setBackgroundRole(QPalette::Dark);
     processedScrollArea->setWidget(processedImageLabel);
     processedScrollArea->setWidgetResizable(false);
+
+    sliderL = ui->sliderL;
+    sliderA = ui->sliderA;
+    sliderB = ui->sliderB;
 }
 
 MainWindow::~MainWindow()
@@ -74,23 +90,23 @@ void MainWindow::on_openAct_triggered()
         QByteArray imgBuffer = file.readAll();
         file.close();
 
-        originalImage = new Image(4608,3456, (uint8_t*)(imgBuffer.data()));
-        processedImage = new Image(4608,3456, originalImage->getImage8bit());
+        originalImage = new Image(IMG_WIDTH, IMG_HEIGHT, (uint8_t*)(imgBuffer.data()), true);
+        processedImage = new Image(IMG_WIDTH,IMG_HEIGHT, originalImage->getImage8bit());
 
         originalImageLabel->setPixmap(QPixmap::fromImage(originalImage->getImage8bit()));
-        originalImageLabel->adjustSize();
 
-        processedImage->process(lut3d);
+
+        processedImage->process(indentityLut3d);
         processedImageLabel->setPixmap(QPixmap::fromImage(processedImage->getImage8bit()));
-        processedImageLabel->adjustSize();
 
 
-//        // Enable view actions
+
+        // Enable view actions
         fitToWindowAct->setEnabled(true);
         exportImageAct->setEnabled(true);
-//        fullSizeAct->setEnabled(true);
-//        zoomInAct->setEnabled(true);
-//        zoomOutAct->setEnabled(true);
+        fullSizeAct->setEnabled(true);
+        zoomInAct->setEnabled(true);
+        zoomOutAct->setEnabled(true);
     }
 }
 
@@ -159,4 +175,72 @@ void MainWindow::adjustScrollBar(QScrollBar *scrollBar, double factor)
 {
     scrollBar->setValue(int(factor * scrollBar->value()
                             + ((factor - 1) * scrollBar->pageStep()/2)));
+}
+
+void  MainWindow::refresh(void)
+{
+    processedImage = new Image(IMG_WIDTH,IMG_HEIGHT, originalImage->getImage8bit());
+    processedImage->process(lut3d);
+    processedImageLabel->setPixmap(QPixmap::fromImage(processedImage->getImage8bit()));
+    processedImageLabel->repaint();
+}
+
+void MainWindow::on_sliderL_sliderReleased(void)
+{
+    for (uint8_t b = 0; b < MAX_INDEX; b++)
+    {
+        for (uint8_t g = 0; g < MAX_INDEX; g++)
+        {
+            for (uint8_t r = 0; r < MAX_INDEX; r++)
+            {
+                QRgba64 rgb = indentityLut3d->getEntry(r, g, b);
+                lab = rgb2lab(rgb);
+                lab.L += sliderL->value();
+                rgb = lab2rgb(lab);
+                lut3d->setEntry(r,g,b,rgb);
+            }
+        }
+    }
+    qDebug() << sliderL->value();
+    refresh();
+}
+
+void MainWindow::on_sliderA_sliderReleased(void)
+{
+    for (uint8_t b = 0; b < MAX_INDEX; b++)
+    {
+        for (uint8_t g = 0; g < MAX_INDEX; g++)
+        {
+            for (uint8_t r = 0; r < MAX_INDEX; r++)
+            {
+                QRgba64 rgb = indentityLut3d->getEntry(r, g, b);
+                lab = rgb2lab(rgb);
+                lab.a += sliderA->value();
+                rgb = lab2rgb(lab);
+                lut3d->setEntry(r,g,b,rgb);
+            }
+        }
+    }
+    qDebug() << sliderA->value();
+    refresh();
+}
+
+void MainWindow::on_sliderB_sliderReleased(void)
+{
+    for (uint8_t b = 0; b < MAX_INDEX; b++)
+    {
+        for (uint8_t g = 0; g < MAX_INDEX; g++)
+        {
+            for (uint8_t r = 0; r < MAX_INDEX; r++)
+            {
+                QRgba64 rgb = indentityLut3d->getEntry(r, g, b);
+                lab = rgb2lab(rgb);
+                lab.b += sliderB->value();
+                rgb = lab2rgb(lab);
+                lut3d->setEntry(r,g,b,rgb);
+            }
+        }
+    }
+    qDebug() << sliderB->value();
+    refresh();
 }

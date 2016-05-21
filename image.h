@@ -15,6 +15,7 @@ class Image
 public:
     Image(uint16_t width, uint16_t height, Image12bit imgBuffer);
     Image(uint16_t width, uint16_t height, Image8bit image);
+    Image(uint16_t width, uint16_t height, uint8_t *imgBuffer, bool useless);
     Image8bit   getImage8bit();
     Image12bit  getImage12bit();
     void   process(Lut3D *lut3d);

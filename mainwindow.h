@@ -6,6 +6,7 @@
 #include <QAction>
 #include <QLabel>
 #include <QScrollArea>
+#include <QSlider>
 #include "lut3d.h"
 #include "image.h"
 
@@ -36,7 +37,12 @@ private slots:
 
     void on_zoomOutAct_triggered();
 
+    void on_sliderL_sliderReleased();
+    void on_sliderA_sliderReleased();
+    void on_sliderB_sliderReleased();
+
 private:
+    Lut3D *indentityLut3d;
     Lut3D *lut3d;
     double scaleFactor;
     Image* originalImage;
@@ -48,6 +54,9 @@ private:
     QLabel *processedImageLabel;
     QScrollArea *originalScrollArea;
     QScrollArea *processedScrollArea;
+    QSlider *sliderL;
+    QSlider *sliderA;
+    QSlider *sliderB;
 
     QAction *openAct;
     QAction *exportLutAct;
@@ -59,6 +68,7 @@ private:
 
     void scaleImage(double factor);
     void adjustScrollBar(QScrollBar *scrollBar, double factor);
+    void refresh();
 };
 
 #endif // MAINWINDOW_H
