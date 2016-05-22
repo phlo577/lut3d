@@ -92,7 +92,7 @@ void Image::process(Lut3D *lut3d)
 {
     uint16_t x, y;
     uint8_t red, green, blue;
-    QRgb rgb;
+    QRgba64 rgb;
     QColor color;
     for(y = 0; y < height; y++)
     {
@@ -101,8 +101,11 @@ void Image::process(Lut3D *lut3d)
             red =   image8bit.pixelColor(x,y).red();
             green = image8bit.pixelColor(x,y).green();
             blue =  image8bit.pixelColor(x,y).blue();
-            rgb = lut3d->getColor(red, green, blue);
-            image8bit.setPixelColor(x,y,color.fromRgb(rgb));
+            rgb = lut3d->getColor64(red, green, blue);
+            color.setRed(rgb.red()>>4);
+            color.setGreen(rgb.green()>>4);
+            color.setBlue(rgb.blue()>>4);
+            image8bit.setPixelColor(x,y,color);
         }
     }
 }

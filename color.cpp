@@ -17,51 +17,7 @@ const float xyz_rgb[3][3] = { 3.2406255, -1.537208, -0.4986286,
                              -0.9689307,  1.8757561, 0.0415175,
                               0.0557101, -0.2040211, 1.0569959};
 
-uint16_t limitRgbChannel64(uint16_t channel);
-uint8_t limitRgbChannel32(uint32_t channel);
-
-
-uint16_t limitRgbChannel64(uint16_t channel)
-{
-    uint16_t retChannel;
-    if ((int16_t)channel > MAX_RGB64)
-    {
-        retChannel = MAX_RGB64;
-    }
-    else
-    {
-        if ((int16_t)channel < 0)
-        {
-            retChannel = 0;
-        }
-        else
-        {
-            retChannel = channel;
-        }
-    }
-    return retChannel;
-}
-
-uint8_t limitRgbChannel32(uint16_t channel)
-{
-    uint8_t retChannel;
-    if (channel > 60000) // < 0
-    {
-        retChannel = 0;
-    }
-    else
-    {
-        if (channel > (uint16_t)MAX_RGB32)
-        {
-            retChannel = MAX_RGB32;
-        }
-        else
-        {
-            retChannel = channel;
-        }
-    }
-    return retChannel;
-}
+uint16_t limitRgbChannel(uint16_t channel);
 
 
 xyz_t rgb2xyz(QRgba64 rgb)
@@ -81,9 +37,9 @@ QRgba64 xyz2rgb(xyz_t xyz)
     green = (xyz_rgb[1][0] * xyz.x + xyz_rgb[1][1] * xyz.y + xyz_rgb[1][2] * xyz.z) * MAX_RGB64 + 0.5;
     blue  = (xyz_rgb[2][0] * xyz.x + xyz_rgb[2][1] * xyz.y + xyz_rgb[2][2] * xyz.z) * MAX_RGB64 + 0.5;
 
-    rgb.setRed(limitRgbChannel32(red));
-    rgb.setGreen(limitRgbChannel32(green));
-    rgb.setBlue(limitRgbChannel32(blue));
+    rgb.setRed(limitRgbChannel(red));
+    rgb.setGreen(limitRgbChannel(green));
+    rgb.setBlue(limitRgbChannel(blue));
     return rgb;
 }
 
@@ -228,4 +184,25 @@ QRgba64 lab2rgb(lab_t lab)
     xyz = lab2xyz(lab);
     rgb = xyz2rgb(xyz);
     return rgb;
+}
+
+uint16_t limitRgbChannel(uint16_t channel)
+{
+    uint16_t retChannel;
+    if ((int16_t)channel > MAX_RGB64)
+    {
+        retChannel = MAX_RGB64;
+    }
+    else
+    {
+        if ((int16_t)channel < 0)
+        {
+            retChannel = 0;
+        }
+        else
+        {
+            retChannel = channel;
+        }
+    }
+    return retChannel;
 }

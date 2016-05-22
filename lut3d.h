@@ -18,11 +18,8 @@ public:
     QString  getString(void);
 
     // Get processed color
-    QRgba64  getColor64(uint16_t red, uint16_t green, uint16_t blue);
-    QRgba64  getColor64(QRgba64 rgb);
-
-    QRgb  getColor(uint8_t red, uint8_t green, uint8_t blue);
-    QRgb  getColor(QRgb rgb);
+    QRgba64  getColor(uint16_t red, uint16_t green, uint16_t blue);
+    QRgba64  getColor(QRgba64 rgb);
 
     // Get 3D LUT entry[blue][green[red]
     QRgba64  getEntry(uint16_t red, uint16_t green, uint16_t blue);
