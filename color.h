@@ -18,6 +18,10 @@ typedef struct xyz
     float z;
 } xyz_t;
 
+//uint8_t gammaTable[256];
+
+void initGamma(float gamma);
+uint16_t gammaCorrect(uint16_t channel);
 
 xyz_t rgb2xyz(QRgba64 rgb);
 QRgba64 xyz2rgb(xyz_t xyz);

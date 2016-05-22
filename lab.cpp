@@ -1,6 +1,6 @@
 #include "lab.h"
 #include "color.h"
-
+#include "QDebug"
 void processLab(int Lvalue, int Avalue, int Bvalue, Lut3D *inputLut, Lut3D *outputLut)
 {
     for (uint8_t b = 0; b < MAX_INDEX; b++)
@@ -12,6 +12,10 @@ void processLab(int Lvalue, int Avalue, int Bvalue, Lut3D *inputLut, Lut3D *outp
                 QRgba64 rgb = inputLut->getEntry(r, g, b);
                 lab_t lab = rgb2lab(rgb);
                 lab.L += Lvalue;
+                if(lab.L > 100)
+                {
+                    lab.L = 100;
+                }
                 lab.a += Avalue;
                 lab.b += Bvalue;
                 rgb = lab2rgb(lab);

@@ -17,8 +17,22 @@ const float xyz_rgb[3][3] = { 3.2406255, -1.537208, -0.4986286,
                              -0.9689307,  1.8757561, 0.0415175,
                               0.0557101, -0.2040211, 1.0569959};
 
+static uint16_t gammaTable[4096];
+
 uint16_t limitRgbChannel(uint16_t channel);
 
+void initGamma(float gamma)
+{
+    for (int i = 0; i< 4096;i++)
+    {
+        gammaTable[i] = (uint16_t)4095*pow((double)i/4095,(double)gamma);
+    }
+}
+
+uint16_t gammaCorrect(uint16_t channel)
+{
+    return gammaTable[channel];
+}
 
 xyz_t rgb2xyz(QRgba64 rgb)
 {
@@ -101,31 +115,6 @@ xyz_t lab2xyz(lab_t lab)
     float fx;
     float fy;
     float fz;
-
-    if (lab.L > 100)
-    {
-        lab.L = 100;
-    }
-    if (lab.L < 0)
-    {
-        lab.L = 0;
-    }
-    if (lab.a > 60)
-    {
-        lab.a = 60;
-    }
-    if (lab.a < -60)
-    {
-        lab.a = -60;
-    }
-    if (lab.b > 60)
-    {
-        lab.b = 60;
-    }
-    if (lab.b < -60)
-    {
-        lab.b = -60;
-    }
 
     fy = (lab.L + 16)/116;
     fx = fy + (lab.a/500);

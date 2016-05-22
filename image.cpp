@@ -1,4 +1,5 @@
 #include "image.h"
+#include "color.h"
 #include <QtWidgets>
 #include <QDebug>
 
@@ -91,7 +92,7 @@ Image12bit Image::getImage12bit()
 void Image::process(Lut3D *lut3d)
 {
     uint16_t x, y;
-    uint8_t red, green, blue;
+    uint16_t red, green, blue;
     QRgba64 rgb;
     QColor color;
     for(y = 0; y < height; y++)
@@ -102,10 +103,42 @@ void Image::process(Lut3D *lut3d)
             green = image8bit.pixelColor(x,y).green();
             blue =  image8bit.pixelColor(x,y).blue();
             rgb = lut3d->getColor(red, green, blue);
-            color.setRed(rgb.red()>>4);
-            color.setGreen(rgb.green()>>4);
-            color.setBlue(rgb.blue()>>4);
-            image8bit.setPixelColor(x,y,color);
+
+            // Gamma correction
+
+            rgb.setRed(gammaCorrect(rgb.red()));
+            rgb.setGreen(gammaCorrect(rgb.green()));
+            rgb.setBlue(gammaCorrect(rgb.blue()));
+
+
+            // Limit color to 255 TODO: add function for this
+            if(rgb.red() > 255)
+            {
+                color.setRed(255);
+            }
+            else
+            {
+                color.setRed(rgb.red());
+            }
+
+            if(rgb.green() > 255)
+            {
+                color.setGreen(255);
+            }
+            else
+            {
+                color.setGreen(rgb.green());
+            }
+
+            if(rgb.blue() > 255)
+            {
+                color.setBlue(255);
+            }
+            else
+            {
+                color.setBlue(rgb.blue());
+            }
+            image8bit.setPixelColor(x,y, color);
         }
     }
 }
