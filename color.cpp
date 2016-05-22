@@ -3,6 +3,7 @@
 #include <QDebug>
 
 #define MAX_RGB64   4095
+#define MAX_RGB32    255
 #define X_REF     95.047
 #define Y_REF    100.000
 #define Z_REF    108.883
@@ -16,10 +17,11 @@ const float xyz_rgb[3][3] = { 3.2406255, -1.537208, -0.4986286,
                              -0.9689307,  1.8757561, 0.0415175,
                               0.0557101, -0.2040211, 1.0569959};
 
-uint16_t limitRgbChannel(uint16_t channel);
+uint16_t limitRgbChannel64(uint16_t channel);
+uint8_t limitRgbChannel32(uint32_t channel);
 
 
-uint16_t limitRgbChannel(uint16_t channel)
+uint16_t limitRgbChannel64(uint16_t channel)
 {
     uint16_t retChannel;
     if ((int16_t)channel > MAX_RGB64)
@@ -40,6 +42,28 @@ uint16_t limitRgbChannel(uint16_t channel)
     return retChannel;
 }
 
+uint8_t limitRgbChannel32(uint16_t channel)
+{
+    uint8_t retChannel;
+    if (channel > 60000) // < 0
+    {
+        retChannel = 0;
+    }
+    else
+    {
+        if (channel > (uint16_t)MAX_RGB32)
+        {
+            retChannel = MAX_RGB32;
+        }
+        else
+        {
+            retChannel = channel;
+        }
+    }
+    return retChannel;
+}
+
+
 xyz_t rgb2xyz(QRgba64 rgb)
 {
     xyz_t xyz;
@@ -57,9 +81,9 @@ QRgba64 xyz2rgb(xyz_t xyz)
     green = (xyz_rgb[1][0] * xyz.x + xyz_rgb[1][1] * xyz.y + xyz_rgb[1][2] * xyz.z) * MAX_RGB64 + 0.5;
     blue  = (xyz_rgb[2][0] * xyz.x + xyz_rgb[2][1] * xyz.y + xyz_rgb[2][2] * xyz.z) * MAX_RGB64 + 0.5;
 
-    rgb.setRed(limitRgbChannel(red));
-    rgb.setGreen(limitRgbChannel(green));
-    rgb.setBlue(limitRgbChannel(blue));
+    rgb.setRed(limitRgbChannel32(red));
+    rgb.setGreen(limitRgbChannel32(green));
+    rgb.setBlue(limitRgbChannel32(blue));
     return rgb;
 }
 
@@ -126,12 +150,25 @@ xyz_t lab2xyz(lab_t lab)
     {
         lab.L = 100;
     }
-    else
+    if (lab.L < 0)
     {
-        if (lab.L < 0)
-        {
-            lab.L = 0;
-        }
+        lab.L = 0;
+    }
+    if (lab.a > 60)
+    {
+        lab.a = 60;
+    }
+    if (lab.a < -60)
+    {
+        lab.a = -60;
+    }
+    if (lab.b > 60)
+    {
+        lab.b = 60;
+    }
+    if (lab.b < -60)
+    {
+        lab.b = -60;
     }
 
     fy = (lab.L + 16)/116;

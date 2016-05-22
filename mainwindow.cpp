@@ -10,6 +10,7 @@
 #include "ui_mainwindow.h"
 #include "image.h"
 #include "color.h"
+#include "lab.h"
 
 
 #include "QDebug"
@@ -21,23 +22,19 @@
 #define IMG_HEIGHT 540
 
 
-static lab_t lab;
-
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    indentityLut3d = new Lut3D(INTERVAL, MAX_INDEX);
+    identityLut3d = new Lut3D(INTERVAL, MAX_INDEX);
     lut3d = new Lut3D(INTERVAL, MAX_INDEX);
 
-    exportImageAct = ui->exportImageAct;
-    exportLutAct   = ui->exportLutAct;
     openAct        = ui->openAct;
     exportLutAct   = ui->exportLutAct;
-    exportImageAct = ui->exportImageAct;
+    exitApp        = ui->exitAct;
     fitToWindowAct = ui->fitToWindowAct;
-    fullSizeAct    = ui->fullSizeAct;
+    actualSizeAct  = ui->actualSizeAct;
     zoomInAct      = ui->zoomInAct;
     zoomOutAct     = ui->zoomOutAct;
 
@@ -70,6 +67,10 @@ MainWindow::MainWindow(QWidget *parent) :
     sliderL = ui->sliderL;
     sliderA = ui->sliderA;
     sliderB = ui->sliderB;
+
+    sliderL->setEnabled(false);
+    sliderA->setEnabled(false);
+    sliderB->setEnabled(false);
 }
 
 MainWindow::~MainWindow()
@@ -95,18 +96,18 @@ void MainWindow::on_openAct_triggered()
 
         originalImageLabel->setPixmap(QPixmap::fromImage(originalImage->getImage8bit()));
 
-
-        processedImage->process(indentityLut3d);
+        processedImage->process(identityLut3d);
         processedImageLabel->setPixmap(QPixmap::fromImage(processedImage->getImage8bit()));
-
 
 
         // Enable view actions
         fitToWindowAct->setEnabled(true);
-        exportImageAct->setEnabled(true);
-        fullSizeAct->setEnabled(true);
+        actualSizeAct->setEnabled(true);
         zoomInAct->setEnabled(true);
         zoomOutAct->setEnabled(true);
+        sliderL->setEnabled(true);
+        sliderA->setEnabled(true);
+        sliderB->setEnabled(true);
     }
 }
 
@@ -125,17 +126,24 @@ void MainWindow::on_exportLutAct_triggered()
     file.close();
 }
 
-void MainWindow::on_exportImageAct_triggered()
+void MainWindow::on_exitAct_triggered()
 {
-
+    qApp->exit();
 }
 
 void MainWindow::on_fitToWindowAct_triggered()
 {
-
+    bool fitToWindow = fitToWindowAct->isChecked();
+    originalScrollArea->setWidgetResizable(fitToWindow);
+    processedScrollArea->setWidgetResizable(fitToWindow);
+    if (!fitToWindow)
+        on_actualSizeAct_triggered();
+    zoomInAct->setEnabled(!fitToWindowAct->isChecked());
+    zoomOutAct->setEnabled(!fitToWindowAct->isChecked());
+    actualSizeAct->setEnabled(!fitToWindowAct->isChecked());
 }
 
-void MainWindow::on_fullSizeAct_triggered()
+void MainWindow::on_actualSizeAct_triggered()
 {
     originalImageLabel->adjustSize();
     processedImageLabel->adjustSize();
@@ -145,11 +153,15 @@ void MainWindow::on_fullSizeAct_triggered()
 void MainWindow::on_zoomInAct_triggered()
 {
     scaleImage(1.25);
+    originalImageLabel->repaint();
+    processedImageLabel->repaint();
 }
 
 void MainWindow::on_zoomOutAct_triggered()
 {
     scaleImage(0.8);
+    originalImageLabel->repaint();
+    processedImageLabel->repaint();
 }
 
 void MainWindow::scaleImage(double factor)
@@ -177,70 +189,29 @@ void MainWindow::adjustScrollBar(QScrollBar *scrollBar, double factor)
                             + ((factor - 1) * scrollBar->pageStep()/2)));
 }
 
+void MainWindow::on_sliderL_sliderReleased(void)
+{
+    processLab(sliderL->value(), sliderA->value(), sliderB->value(), identityLut3d, lut3d);
+    refresh();
+}
+
+void MainWindow::on_sliderA_sliderReleased(void)
+{
+    processLab(sliderL->value(), sliderA->value(), sliderB->value(), identityLut3d, lut3d);
+    refresh();
+}
+
+void MainWindow::on_sliderB_sliderReleased(void)
+{
+    processLab(sliderL->value(), sliderA->value(), sliderB->value(), identityLut3d, lut3d);
+    refresh();
+}
+
+
 void  MainWindow::refresh(void)
 {
     processedImage = new Image(IMG_WIDTH,IMG_HEIGHT, originalImage->getImage8bit());
     processedImage->process(lut3d);
     processedImageLabel->setPixmap(QPixmap::fromImage(processedImage->getImage8bit()));
     processedImageLabel->repaint();
-}
-
-void MainWindow::on_sliderL_sliderReleased(void)
-{
-    for (uint8_t b = 0; b < MAX_INDEX; b++)
-    {
-        for (uint8_t g = 0; g < MAX_INDEX; g++)
-        {
-            for (uint8_t r = 0; r < MAX_INDEX; r++)
-            {
-                QRgba64 rgb = indentityLut3d->getEntry(r, g, b);
-                lab = rgb2lab(rgb);
-                lab.L += sliderL->value();
-                rgb = lab2rgb(lab);
-                lut3d->setEntry(r,g,b,rgb);
-            }
-        }
-    }
-    qDebug() << sliderL->value();
-    refresh();
-}
-
-void MainWindow::on_sliderA_sliderReleased(void)
-{
-    for (uint8_t b = 0; b < MAX_INDEX; b++)
-    {
-        for (uint8_t g = 0; g < MAX_INDEX; g++)
-        {
-            for (uint8_t r = 0; r < MAX_INDEX; r++)
-            {
-                QRgba64 rgb = indentityLut3d->getEntry(r, g, b);
-                lab = rgb2lab(rgb);
-                lab.a += sliderA->value();
-                rgb = lab2rgb(lab);
-                lut3d->setEntry(r,g,b,rgb);
-            }
-        }
-    }
-    qDebug() << sliderA->value();
-    refresh();
-}
-
-void MainWindow::on_sliderB_sliderReleased(void)
-{
-    for (uint8_t b = 0; b < MAX_INDEX; b++)
-    {
-        for (uint8_t g = 0; g < MAX_INDEX; g++)
-        {
-            for (uint8_t r = 0; r < MAX_INDEX; r++)
-            {
-                QRgba64 rgb = indentityLut3d->getEntry(r, g, b);
-                lab = rgb2lab(rgb);
-                lab.b += sliderB->value();
-                rgb = lab2rgb(lab);
-                lut3d->setEntry(r,g,b,rgb);
-            }
-        }
-    }
-    qDebug() << sliderB->value();
-    refresh();
 }

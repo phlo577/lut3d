@@ -16,11 +16,13 @@ SOURCES += main.cpp\
         mainwindow.cpp \
         lut3d.cpp \
     image.cpp \
-    color.cpp
+    color.cpp \
+    lab.cpp
 
 HEADERS  += mainwindow.h \
     lut3d.h \
     image.h \
-    color.h
+    color.h \
+    lab.h
 
 FORMS    += mainwindow.ui
