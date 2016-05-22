@@ -101,7 +101,7 @@ void Image::process(Lut3D *lut3d)
             red =   image8bit.pixelColor(x,y).red();
             green = image8bit.pixelColor(x,y).green();
             blue =  image8bit.pixelColor(x,y).blue();
-            rgb = lut3d->getColor64(red, green, blue);
+            rgb = lut3d->getColor(red, green, blue);
             color.setRed(rgb.red()>>4);
             color.setGreen(rgb.green()>>4);
             color.setBlue(rgb.blue()>>4);
