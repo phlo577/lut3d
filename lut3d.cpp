@@ -60,7 +60,7 @@ QString Lut3D::getString(void)
     return retString;
 }
 
-QRgba64 Lut3D::getColor64(uint16_t red, uint16_t green, uint16_t blue)
+QRgba64 Lut3D::getColor(uint16_t red, uint16_t green, uint16_t blue)
 {
     uint8_t redIndex, greenIndex, blueIndex;
     float redDif, greenDif, blueDif;
@@ -141,9 +141,9 @@ QRgba64 Lut3D::getColor64(uint16_t red, uint16_t green, uint16_t blue)
     return colorPoint;
 }
 
-QRgba64 Lut3D::getColor64(QRgba64 rgb)
+QRgba64 Lut3D::getColor(QRgba64 rgb)
 {
-    QRgba64 color = this->getColor64(rgb.red(), rgb.green(), rgb.red());
+    QRgba64 color = this->getColor(rgb.red(), rgb.green(), rgb.red());
     return color;
 }
 

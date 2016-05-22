@@ -25,5 +25,4 @@ private:
     Image8bit image8bit;
     Image12bit image12bit;
 };
-
 #endif // IMAGE_H

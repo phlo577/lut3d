@@ -17,6 +17,7 @@
 
 #define INTERVAL 273
 #define MAX_INDEX 16
+#define GAMMA 1
 
 #define IMG_WIDTH  720
 #define IMG_HEIGHT 540
@@ -71,6 +72,7 @@ MainWindow::MainWindow(QWidget *parent) :
     sliderL->setEnabled(false);
     sliderA->setEnabled(false);
     sliderB->setEnabled(false);
+    initGamma(GAMMA);
 }
 
 MainWindow::~MainWindow()
@@ -94,9 +96,10 @@ void MainWindow::on_openAct_triggered()
         originalImage = new Image(IMG_WIDTH, IMG_HEIGHT, (uint8_t*)(imgBuffer.data()), true);
         processedImage = new Image(IMG_WIDTH,IMG_HEIGHT, originalImage->getImage8bit());
 
+        processLab(0,0,0,identityLut3d, lut3d);
         originalImageLabel->setPixmap(QPixmap::fromImage(originalImage->getImage8bit()));
 
-        processedImage->process(identityLut3d);
+        processedImage->process(lut3d);
         processedImageLabel->setPixmap(QPixmap::fromImage(processedImage->getImage8bit()));
 
 
