@@ -7,6 +7,7 @@
 #include <QLabel>
 #include <QScrollArea>
 #include <QSlider>
+#include <QHBoxLayout>
 #include "lut3d.h"
 #include "image.h"
 
@@ -27,11 +28,11 @@ private slots:
 
     void on_exportLutAct_triggered();
 
-    void on_exportImageAct_triggered();
+    void on_exitAct_triggered();
 
     void on_fitToWindowAct_triggered();
 
-    void on_fullSizeAct_triggered();
+    void on_actualSizeAct_triggered();
 
     void on_zoomInAct_triggered();
 
@@ -42,7 +43,7 @@ private slots:
     void on_sliderB_sliderReleased();
 
 private:
-    Lut3D *indentityLut3d;
+    Lut3D *identityLut3d;
     Lut3D *lut3d;
     double scaleFactor;
     Image* originalImage;
@@ -60,9 +61,9 @@ private:
 
     QAction *openAct;
     QAction *exportLutAct;
-    QAction *exportImageAct;
+    QAction *exitApp;
     QAction *fitToWindowAct;
-    QAction *fullSizeAct;
+    QAction *actualSizeAct;
     QAction *zoomInAct;
     QAction *zoomOutAct;
 
